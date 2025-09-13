@@ -1,4 +1,3 @@
-import os
 from flask import Flask, request, jsonify
 import torch
 import torch.nn as nn
@@ -24,7 +23,7 @@ model.eval()
 # Transforms
 # ============================
 transform = transforms.Compose([
-    transforms.Resize((224,224)),
+    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485,0.456,0.406],
                          std=[0.229,0.224,0.225])
@@ -35,7 +34,10 @@ transform = transforms.Compose([
 # ============================
 @app.route("/predict", methods=["POST"])
 def predict():
-    file = request.files["image"]  # Get uploaded file
+    if "image" not in request.files:
+        return jsonify({"error": "No image uploaded"}), 400
+
+    file = request.files["image"]
     img = Image.open(file).convert("RGB")
 
     x = transform(img).unsqueeze(0).to(device)
@@ -48,5 +50,4 @@ def predict():
 # Run App
 # ============================
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=10000)
