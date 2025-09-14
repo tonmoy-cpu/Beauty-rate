@@ -7,9 +7,9 @@ itsdangerous==2.2.0
 blinker==1.9.0
 
 # PyTorch + TorchVision
-torch==2.8.0
-torchvision==0.23.0
-Pillow==9.5.0
+torch==2.2.2
+torchvision==0.17.2
+Pillow==10.2.0
 
 # Scientific / ML packages
 numpy==2.3.2
