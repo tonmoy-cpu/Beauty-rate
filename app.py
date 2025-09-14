@@ -26,9 +26,23 @@ model.eval()
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485,0.456,0.406],
-                         std=[0.229,0.224,0.225])
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225])
 ])
+
+# ============================
+# Root Route
+# ============================
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({"message": "✅ Beauty Rate API is live!"})
+
+# ============================
+# Health Check Route
+# ============================
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"}), 200
 
 # ============================
 # Prediction Route
