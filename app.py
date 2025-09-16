@@ -7,22 +7,19 @@ import os
 
 app = Flask(__name__)
 
-# ============================
-# Load Model
-# ============================
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model = models.resnet18(weights=None)
-num_features = model.fc.in_features
-model.fc = nn.Linear(num_features, 1)
+# Define MobileNetV2 with regression head
+model = models.mobilenet_v2(weights=None)
+num_features = model.classifier[1].in_features
+model.classifier[1] = nn.Linear(num_features, 1)
 
+# Load trained weights
 model.load_state_dict(torch.load("best_model.pth", map_location=device))
 model.to(device)
 model.eval()
 
-# ============================
-# Transforms
-# ============================
+#transforms
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
@@ -30,23 +27,15 @@ transform = transforms.Compose([
                          std=[0.229, 0.224, 0.225])
 ])
 
-# ============================
-# Root Route
-# ============================
+#routes
 @app.route("/", methods=["GET"])
 def home():
     return jsonify({"message": "✅ Beauty Rate API is live!"})
 
-# ============================
-# Health Check Route
-# ============================
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok"}), 200
 
-# ============================
-# Prediction Route
-# ============================
 @app.route("/predict", methods=["POST"])
 def predict():
     if "image" not in request.files:
@@ -59,11 +48,11 @@ def predict():
     with torch.no_grad():
         pred = model(x).cpu().item()
 
+    pred = max(1.0, min(5.0, pred))
+
     return jsonify({"score": round(pred, 3)})
 
-# ============================
-# Run App
-# ============================
+#run app
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
