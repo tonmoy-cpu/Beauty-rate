@@ -25,3 +25,4 @@ wheel==0.42.0
 
 
 gunicorn==21.2.0
+gradio==5.46.0
